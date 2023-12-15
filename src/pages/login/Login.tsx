@@ -37,6 +37,10 @@ export const Login = () => {
 		});
 	},[]);
 
+	function registrarSe () {
+		navigate('/registrar-se');
+	}
+  
 	const handleSubmit = (evt: React.FormEvent) =>{
 		evt.preventDefault();
 		if(!username) setIsEmptyUser(true);
@@ -44,11 +48,7 @@ export const Login = () => {
 
 		if(isEmptyPass == true && isEmptyUser == true) return;
 
-		const userIn: ILoginProps = {
-			username,
-			password,
-			_csrf
-		};
+		const userIn: ILoginProps = { username, password, _csrf	};
 
 		async function loged (){
 			try {
@@ -114,8 +114,10 @@ export const Login = () => {
 						sx={{fontSize: '11px', marginBottom: '10px'}}>
               se esqueceu a senha, <Link href="/home">clique aqui</Link>
 					</Typography>
-
-					<Button type='submit' color='primary' variant='contained'>Entrar</Button>
+					<Box>
+						<Button type='submit' sx={{marginRight: '8px'}} color='primary' variant='contained'>Entrar</Button>
+						<Button type='button' onClick={registrarSe} color='secondary' variant='contained'>Registrar-se</Button>
+					</Box>
 				</Box>
 			</Box>
 		</Container>
