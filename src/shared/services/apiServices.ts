@@ -1,27 +1,34 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { toast } from 'react-toastify';
 import { ILoginProps } from '../../pages';
 import { Api } from './api';
 import { ErrorMesage } from './error';
 
-interface IpropsToken {
-  _csrf: string
+export interface IpropsToken {
+  _csrf: string;
+  token: string;
+  data: Array<Record<string, any>>;
+  id?: number;
+  [key: number]: string;
 }
 
-async function get_token  (): Promise<IpropsToken[] | ErrorMesage> {
+async function get_token  (root: string, opt = {}): Promise<Omit<IpropsToken[], 'token'> | ErrorMesage> {
 	try{
-		const { data } = await Api.get('/');
+		const { data } = await Api.get(root, opt);
 		return data;
 	}catch(err: any) {
-		return new ErrorMesage(err.mesage || 'Erro ao pegar o token');
+		if(err.response.data.info) toast(err.response.data.info );
+		return new ErrorMesage(err.mesage ||err.response.data.info || 'Erro ao pegar o token');
 	}
 }
 
-async function post_Login  (obj: ILoginProps): Promise<string | ErrorMesage> {
+async function post_Login  (obj: ILoginProps): Promise<Omit<IpropsToken[], '_csrf'> | ErrorMesage> {
 	try{
 		const { data } = await Api.post('/login', obj);
 		return data;
 	}catch(err: any) {
-		return new ErrorMesage(err.mesage || 'Erro ao pegar o token');
+		if(err.response.data.info) toast(err.response.data.info );
+		return new ErrorMesage(err.mesage ||err.response.data.info ||'Erro ao pegar o token');
 	}
 }
 

@@ -1,7 +1,10 @@
 import React, {  useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Box, Button, Container, Link, TextField, Typography } from '@mui/material';
 import { cyan } from '@mui/material/colors';
-import { apiServices } from '../../shared/services';
+import { IpropsToken, apiServices } from '../../shared/services';
+import { useUserContext } from '../../shared/contexts/UserOn';
+import { toast } from 'react-toastify';
 
 
 export type ILoginProps = {
@@ -13,17 +16,23 @@ export type ILoginProps = {
 export const Login = () => {
 	const [password, setPassword] = useState('');
 	const [username, setUsername] = useState('');
-	const [isEmptyUser, setIsEmptyUser] = useState(false);
-	const [isEmptyPass, setIsEmptyPass] = useState(false);
+	const [isEmptyUser, setIsEmptyUser] = useState(true);
+	const [isEmptyPass, setIsEmptyPass] = useState(true);
 	const [_csrf, setCsrf] = useState('');
+	const {setToken,  setUserId}  = useUserContext();
+	const navigate = useNavigate();
 
 
 	useEffect(() => {
-		apiServices.get_token().then((response) => {
+		setIsEmptyUser(false);
+		setIsEmptyPass(false);
+		apiServices.get_token('/').then((response) => {
 			if(response instanceof Error){
 				console.log(response.message);
+				toast(response.message);
 			}else {
-				setCsrf(response[0]._csrf);
+				const {_csrf} = response[0];
+				setCsrf(_csrf ?? '');
 			}
 		});
 	},[]);
@@ -33,17 +42,27 @@ export const Login = () => {
 		if(!username) setIsEmptyUser(true);
 		if(!password) setIsEmptyPass(true);
 
-		if(!isEmptyPass && !isEmptyUser){
-			const userIn: ILoginProps = {
-				username,
-				password,
-				_csrf
-			};
+		if(isEmptyPass == true && isEmptyUser == true) return;
 
-			console.log(userIn);
+		const userIn: ILoginProps = {
+			username,
+			password,
+			_csrf
+		};
 
+		async function loged (){
+			try {
+				const response = await apiServices.post_Login(userIn);
+				const {token, id} = await (response as IpropsToken[])[0];
+				await setToken(token);
+				await setUserId(id ?? 0);
+				navigate('/home');
+
+			} catch (error) {
+				if(error) toast(`${error}`);
+			}
 		}
-
+		loged();
 	};
 
 	return (

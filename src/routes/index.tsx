@@ -1,7 +1,8 @@
+import React from 'react';
 import {Route, Routes as Switch, Navigate} from 'react-router-dom';
 
-import React from 'react';
 import { Home, Login } from '../pages';
+import { useUserContext } from '../shared/contexts/UserOn';
 
 
 // export const PrivateRoutes: React.FC<{children: React.ReactNode}> = ({children}) => {
@@ -14,7 +15,10 @@ import { Home, Login } from '../pages';
 // };
 
 export const Routes: React.FC = () => {
-	const isPrivete: boolean = false;
+	let isPrivete: boolean = false;
+	const { userId } = useUserContext();
+
+	if(userId !== 0) isPrivete = true;
 
 	return (
 		<Switch>
