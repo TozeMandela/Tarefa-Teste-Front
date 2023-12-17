@@ -7,11 +7,12 @@ interface IfieldInputsProps {
   Label: string,
   error?: boolean,
   value: string,
-  setBody: (evt: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void,
+  disabled?: boolean;
+  setBody?: (evt: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void,
   sx?: SxProps<Theme> | undefined
 }
 
-export const InputField: React.FC<IfieldInputsProps> = ({Label, Type, error, name, value, setBody, sx}) => {
+export const InputField: React.FC<IfieldInputsProps> = ({Label, Type, error, name, value, setBody, sx, disabled}) => {
 	return	<TextField
 		label={Label}
 		name={name}
@@ -21,6 +22,7 @@ export const InputField: React.FC<IfieldInputsProps> = ({Label, Type, error, nam
 		value={value}
 		onChange={setBody}
 		margin='dense'
+		disabled={disabled}
 		sx={sx}
 	/>;
 };

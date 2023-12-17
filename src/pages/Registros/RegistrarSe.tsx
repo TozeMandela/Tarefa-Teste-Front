@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Container, Typography, Drawer, Button, Divider, Select, MenuItem, InputLabel, FormControl, TextField } from '@mui/material';
 import { InputField } from '../../shared/components';
-import { IbodyProps, apiServices } from '../../shared/services';
+import { IbodyProps, IpropsUserLog, apiServices } from '../../shared/services';
 import { toast } from 'react-toastify';
 
 interface Empty {
@@ -12,13 +12,19 @@ interface Empty {
   location?: string
   nationality?: string
   numberIdentity?: string
+  username?: string,
+  password?: string,
+	passwordConfirm?: string,
+	userId?: string,
   status: true;
 }
 
 export const RegistrarSe = () => {
 	const [body, setBody] = useState<IbodyProps>({} as IbodyProps);
+	const [login, setLogin] = useState<IpropsUserLog>({} as IpropsUserLog);
 	const [emptys, setEmptys] = useState<Empty>({status: true} as Empty);
 	const validField = ['name', 'gender', 'email', 'phoneNumber', 'location', 'nationality', 'numberIdentity'];
+	const validFieldLogin = ['username', 'password', 'passwordConfirm', 'userId', '_csrf'];
 
 	useEffect(() => {
 		apiServices.get_token('/').then((response) => {
@@ -26,16 +32,54 @@ export const RegistrarSe = () => {
 				toast(response.message);
 			}else {
 				const {_csrf} = response[0];
-				setBody((oldBody) =>({
+				setLogin((oldBody) =>({
 					...oldBody,
 					['_csrf']:_csrf
 				}));
 			}
 		});
-	},[emptys]);
 
-	const handleSubmit = (evt: React.FormEvent) => {
+		const data = window.location.pathname.replace('/cadastrar-se/', '');
+
+		apiServices.get_token(`/users/pesquisar/o/?phoneNumber=${data}`).then((response) => {
+			if(response instanceof Error){
+				toast(response.message);
+			}else {
+				const data = (response as unknown);
+				setBody((data as IbodyProps));
+				const {id} = (data! as IpropsUserLog);
+				setLogin({userId: `${id}`,  _csrf: ''  });
+			}
+		});
+	},[]);
+
+	const handleSubmit = (evt: React.FormEvent) =>{
 		evt.preventDefault();
+		let sendTo = true;
+		setEmptys({status: true});
+
+		for (let index = 0; index < validFieldLogin.length; index++) {
+			if(Object.keys(login).indexOf(validFieldLogin[index]) === -1) {
+				sendTo = false;
+				setEmptys(oldBody =>({ ...oldBody,
+					[validFieldLogin[index]]: validFieldLogin[index]
+				}));
+			}
+		}
+
+		if(!sendTo) return;
+
+		apiServices.post_Login_register('/login/register', login).then((response)=>{
+			if(response instanceof Error){
+				toast(response.message);
+			}else {
+				console.log('dados salvos com sucesso');
+
+			}
+		});
+	};
+
+	const handleUpdate = () => {
 		let sendTo = true;
 		setEmptys({status: true});
 
@@ -50,12 +94,12 @@ export const RegistrarSe = () => {
 
 		if(!sendTo) return;
 
-		apiServices.post_Login_register('/users/cadastrar', body).then((response) => {
+		apiServices.put_Update(`/users/actualizacao/${body.id}`, body).then((response) => {
 			if(response instanceof Error){
 				console.log(response.message);
 				toast(response.message);
 			}else {
-				console.log('cadastrado');
+				console.log('usuario Acutalizado com sucesso');
 			}
 		});
 	};
@@ -147,15 +191,35 @@ export const RegistrarSe = () => {
 											['gender']: evt.target.value
 										}))}
 									>
-										<MenuItem value='H'>Homem</MenuItem>
-										<MenuItem value='M'>Mulher</MenuItem>
+										<MenuItem value='M'>Homem</MenuItem>
+										<MenuItem value='F'>Mulher</MenuItem>
 									</Select>
 								</FormControl>
 							</Box>
 
-							<Divider/>
+							<Box>
+								<InputField Label='Senha' Type='password' name='password' error={emptys.password? emptys.status: false}  value={login.password||''} setBody={(evt) =>setLogin((oldLogin) =>({
+									...oldLogin,
+									['password']: evt.target.value
+								}))} sx={{width: '45%', marginRight: '5px'}} />
 
-							<Button sx={{marginTop: '10px'}}  type='submit' variant='contained' color='secondary' >cadastrar</Button>
+								<InputField Label='Senha de confirmação' Type='password' name='passwordConfirm' error={emptys.passwordConfirm? emptys.status: false}  value={login.passwordConfirm||''} setBody={(evt) =>setLogin((oldLogin) =>({
+									...oldLogin,
+									['passwordConfirm']: evt.target.value
+								}))} sx={{width: '45%', marginRight: '5px'}} />
+							</Box>
+							<Box>
+								<InputField Label='Username' Type='text' name='username' error={emptys.username? emptys.status: false}  value={login.username||''} setBody={(evt) =>setLogin((oldLogin) =>({
+									...oldLogin,
+									['username']: evt.target.value
+								}))} sx={{width: '45%', marginRight: '5px'}} />
+
+								<InputField disabled={true} Label='Codigo' Type='text' name='userId' error={emptys.userId? emptys.status: false}  value={login.userId||''} sx={{width: '45%', marginRight: '5px'}} />
+							</Box>
+							<Divider/>
+							<Button key='1' sx={{marginTop: '10px', marginRight: '10px'}}  type='submit' variant='contained' color='secondary' >cadastrar</Button>
+
+							<Button key='2' sx={{marginTop: '10px'}} onClick={handleUpdate} variant='contained' color='success'>update</Button>
 						</Box>
 					</Box>
 				</Container>

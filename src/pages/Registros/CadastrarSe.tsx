@@ -139,8 +139,8 @@ export const CadastrarSe = () => {
 											['gender']: evt.target.value
 										}))}
 									>
-										<MenuItem value='H'>Homem</MenuItem>
-										<MenuItem value='M'>Mulher</MenuItem>
+										<MenuItem value='M'>Homem</MenuItem>
+										<MenuItem value='F'>Mulher</MenuItem>
 									</Select>
 								</FormControl>
 							</Box>

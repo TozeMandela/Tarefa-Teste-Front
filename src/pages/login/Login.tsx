@@ -56,6 +56,8 @@ export const Login = () => {
 				const {token, id} = await (response as IpropsToken[])[0];
 				await setToken(token);
 				await setUserId(id ?? 0);
+
+				localStorage.setItem('Auth', JSON.stringify({token, id}));
 				navigate('/home');
 
 			} catch (error) {
