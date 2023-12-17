@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Container, Typography, Drawer, Button, Divider, Select, MenuItem, InputLabel, FormControl, TextField } from '@mui/material';
+import { Box, Container, Typography, Drawer, Button, Divider, Select, MenuItem, InputLabel, FormControl } from '@mui/material';
 import { InputField } from '../../shared/components';
 import { IbodyProps, apiServices } from '../../shared/services';
 import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 interface Empty {
   name?: string;
@@ -15,10 +16,11 @@ interface Empty {
   status: true;
 }
 
-export const RegistrarSe = () => {
+export const CadastrarSe = () => {
 	const [body, setBody] = useState<IbodyProps>({} as IbodyProps);
 	const [emptys, setEmptys] = useState<Empty>({status: true} as Empty);
 	const validField = ['name', 'gender', 'email', 'phoneNumber', 'location', 'nationality', 'numberIdentity'];
+	const navegate = useNavigate();
 
 	useEffect(() => {
 		apiServices.get_token('/').then((response) => {
@@ -55,7 +57,8 @@ export const RegistrarSe = () => {
 				console.log(response.message);
 				toast(response.message);
 			}else {
-				console.log('cadastrado');
+				toast('cadastrado');
+				navegate(`/cadastrar-se/${body.phoneNumber}`);
 			}
 		});
 	};
@@ -76,21 +79,10 @@ export const RegistrarSe = () => {
 
 				<Typography sx={{fontSize: '2em', lineHeight: '1'}}component='span'>_arefa</Typography>
 			</Drawer>
-
-			<Box bgcolor='#7B1FA2' sx={{ height: '60px', marginLeft: '250px'}}>
-				<Container sx={{width: '100%', height: '100%',display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-					<Typography fontWeight='bold' color='white'>Nota: verifique se estão corretos os dados que inseriu anteriorment!</Typography>
-
-					<TextField label='search'>
-
-					</TextField>
-				</Container>
-			</Box>
-
-			<Box sx={{height: '90vh',display: 'flex', alignItems: 'center', marginLeft: '250px'}}>
-				<Container sx={{width: '100%'}}>
+			<Box sx={{height: '90vh',display: 'flex', alignItems: 'center'}}>
+				<Container sx={{width: '900px'}}>
 					<Typography component='h1' fontSize='2em' fontWeight='bold' color='#7B1FA2'>
-          Registrar-se
+          Cadastrar-se
 					</Typography>
 
 					<Box>

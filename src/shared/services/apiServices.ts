@@ -12,6 +12,20 @@ export interface IpropsToken {
   [key: number]: string;
 }
 
+export interface IbodyProps {
+  name: string,
+	gender: string,
+	email: string,
+	phoneNumber: string,
+	phoneNumberAlternative: string,
+	location: string,
+	nationality: string,
+	numberIdentity: string,
+  _csrf: string
+  [key: number|string]: string | number |undefined,
+}
+
+
 async function get_token  (root: string, opt = {}): Promise<Omit<IpropsToken[], 'token'> | ErrorMesage> {
 	try{
 		const { data } = await Api.get(root, opt);
@@ -22,13 +36,14 @@ async function get_token  (root: string, opt = {}): Promise<Omit<IpropsToken[], 
 	}
 }
 
-async function post_Login  (obj: ILoginProps): Promise<Omit<IpropsToken[], '_csrf'> | ErrorMesage> {
+async function post_Login_register  (path: string, obj: ILoginProps | IbodyProps): Promise<Omit<IpropsToken[], '_csrf'>| Omit<IbodyProps[], '_csrf'> | ErrorMesage> {
 	try{
-		const { data } = await Api.post('/login', obj);
+		const { data } = await Api.post(path, obj);
 		return data;
 	}catch(err: any) {
 		if(err.response.data.info) toast(err.response.data.info );
-		return new ErrorMesage(err.mesage ||err.response.data.info ||'Erro ao pegar o token');
+		if(err.response.data.error) toast(err.response.data.error.errors[0].message);
+		return new ErrorMesage(err.mesage ||err.response.data.info || err.response.data.error.errors[0].message ||'Erro ao postar');
 	}
 }
 
@@ -39,5 +54,5 @@ async function post_Login  (obj: ILoginProps): Promise<Omit<IpropsToken[], '_csr
 
 export const apiServices = {
 	get_token,
-	post_Login,
+	post_Login_register,
 };

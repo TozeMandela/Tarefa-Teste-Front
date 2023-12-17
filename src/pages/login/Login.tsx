@@ -40,7 +40,7 @@ export const Login = () => {
 	function registrarSe () {
 		navigate('/registrar-se');
 	}
-  
+
 	const handleSubmit = (evt: React.FormEvent) =>{
 		evt.preventDefault();
 		if(!username) setIsEmptyUser(true);
@@ -52,7 +52,7 @@ export const Login = () => {
 
 		async function loged (){
 			try {
-				const response = await apiServices.post_Login(userIn);
+				const response = await apiServices.post_Login_register('/login', userIn);
 				const {token, id} = await (response as IpropsToken[])[0];
 				await setToken(token);
 				await setUserId(id ?? 0);
